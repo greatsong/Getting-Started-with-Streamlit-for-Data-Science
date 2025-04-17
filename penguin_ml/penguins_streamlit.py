@@ -113,3 +113,45 @@ new_prediction = rfc.predict([[bill_length, bill_depth, flipper_length,
   island_torgerson, sex_female, sex_male]]) 
 prediction_species = unique_penguin_mapping[new_prediction][0]
 st.write('We predict your penguin is of the {} species'.format(prediction_species)) 
+
+
+from mpl_toolkits.mplot3d import Axes3D  # 3D 시각화를 위해 필요
+from sklearn.decomposition import PCA
+
+# 시각화 버튼
+if st.button("3D Feature Space Visualization"):
+
+    st.subheader("Penguin Dataset in 3D Space (Colored by Species Prediction)")
+
+    # 선택한 주요 특성
+    feature_cols = ['bill_length_mm', 'bill_depth_mm', 'flipper_length_mm']
+    
+    # 예측값 생성
+    predicted = rfc.predict(features)
+
+    fig = plt.figure(figsize=(10, 7))
+    ax = fig.add_subplot(111, projection='3d')
+
+    scatter = ax.scatter(
+        features['bill_length_mm'],
+        features['bill_depth_mm'],
+        features['flipper_length_mm'],
+        c=predicted,
+        cmap='viridis',
+        edgecolor='k',
+        s=60
+    )
+
+    ax.set_xlabel('Bill Length (mm)')
+    ax.set_ylabel('Bill Depth (mm)')
+    ax.set_zlabel('Flipper Length (mm)')
+    ax.set_title('3D Feature Space of Penguins (Predicted Classes)')
+
+    # 범례 추가
+    legend_labels = [unique_penguin_mapping[i] for i in range(len(set(predicted)))]
+    legend_handles = [plt.Line2D([0], [0], marker='o', color='w',
+                                 label=label, markerfacecolor=scatter.cmap(scatter.norm(i)),
+                                 markersize=10) for i, label in enumerate(legend_labels)]
+    ax.legend(handles=legend_handles)
+
+    st.pyplot(fig)
