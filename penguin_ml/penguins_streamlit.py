@@ -14,14 +14,6 @@ st.write("This app uses 6 inputs to predict the species of penguin using "
          "a model built on the Palmer's Penguin's dataset. Use the form below" 
 
          " to get started!") 
-
-  
-
-password_guess = st.text_input('What is the Password?') 
-
-if password_guess != 'streamlit_is_great': 
-  st.stop() 
-
   
 
 penguin_file = st.file_uploader('Upload your own penguin data') 
@@ -155,3 +147,43 @@ if st.button("3D Feature Space Visualization"):
     ax.legend(handles=legend_handles)
 
     st.pyplot(fig)
+
+
+import plotly.express as px
+
+# Plotly 3D 시각화 버튼
+if st.button("📊 Show 3D Interactive Visualization with Plotly"):
+
+    st.subheader("Interactive 3D Scatter Plot (by Predicted Species)")
+
+    # 예측값 추가
+    features_plot = features.copy()
+    features_plot['prediction'] = rfc.predict(features)
+    features_plot['species_name'] = features_plot['prediction'].apply(lambda x: unique_penguin_mapping[x])
+
+    # Plotly 3D 산점도
+    fig = px.scatter_3d(
+        features_plot,
+        x='bill_length_mm',
+        y='bill_depth_mm',
+        z='flipper_length_mm',
+        color='species_name',
+        symbol='species_name',
+        title="Penguins in 3D Feature Space",
+        labels={
+            'bill_length_mm': 'Bill Length (mm)',
+            'bill_depth_mm': 'Bill Depth (mm)',
+            'flipper_length_mm': 'Flipper Length (mm)',
+            'species_name': 'Predicted Species'
+        }
+    )
+
+    fig.update_traces(marker=dict(size=5, line=dict(width=0.5, color='DarkSlateGrey')))
+    fig.update_layout(scene=dict(
+        xaxis_title='Bill Length',
+        yaxis_title='Bill Depth',
+        zaxis_title='Flipper Length'
+    ))
+
+    st.plotly_chart(fig, use_container_width=True)
+
